@@ -1,0 +1,81 @@
+	<person id="berlin_aee537fc">
+		<attributes>
+            <attribute name="vehicleTypes" class="org.matsim.vehicles.PersonVehicleTypes">{"freight":"mercedes313"}</attribute>
+			<attribute name="vehicles" class="org.matsim.vehicles.PersonVehicles">{"car":"berlin_aee537fc_car","truck":"berlin_aee537fc_truck","freight":"berlin_aee537fc_freight","ride":"berlin_aee537fc_ride"}</attribute>
+		</attributes>
+		<plan score="103.78183100440111" selected="yes">
+			<activity type="home_86400" link="-185995541#1" x="795927.5366052117" y="5815322.387932612" end_time="11:33:08" >
+				<attributes>
+					<attribute name="initialEndTime" class="java.lang.Double">40954.0</attribute>
+					<attribute name="orig_dist" class="java.lang.Double">0.0</attribute>
+				</attributes>
+			</activity>
+			<leg mode="walk" dep_time="11:33:08">
+				<attributes>
+					<attribute name="routingMode" class="java.lang.String">walk</attribute>
+				</attributes>
+				<route type="generic" start_link="-185995541#1" end_link="-691112779" trav_time="00:07:54" distance="584.1733437176722"></route>
+			</leg>
+			<activity type="shop_daily_1800" link="-691112779" facility="f290638" x="796369.32" y="5815404.58" max_dur="00:41:39" >
+				<attributes>
+					<attribute name="orig_dist" class="java.lang.Double">0.611</attribute>
+					<attribute name="orig_duration" class="java.lang.Double">7.0</attribute>
+				</attributes>
+			</activity>
+			<leg mode="walk" dep_time="12:22:41">
+				<attributes>
+					<attribute name="routingMode" class="java.lang.String">pt</attribute>
+				</attributes>
+				<route type="generic" start_link="-691112779" end_link="-185995541#1" trav_time="00:07:54" distance="584.1733437176722"></route>
+			</leg>
+			<activity type="home_23400" link="-185995541#1" x="795927.5366052117" y="5815322.387932612" end_time="18:56:32" >
+				<attributes>
+					<attribute name="initialEndTime" class="java.lang.Double">67026.0</attribute>
+					<attribute name="orig_dist" class="java.lang.Double">0.613</attribute>
+					<attribute name="orig_duration" class="java.lang.Double">10.0</attribute>
+				</attributes>
+			</activity>
+			<leg mode="walk" dep_time="18:56:32">
+				<attributes>
+					<attribute name="routingMode" class="java.lang.String">walk</attribute>
+				</attributes>
+				<route type="generic" start_link="-185995541#1" end_link="-107747049#1" trav_time="01:54:48" distance="8473.458309758711"></route>
+			</leg>
+			<activity type="edu_higher_9000" link="-107747049#1" facility="ff75d94" x="791455.8" y="5820064.59" end_time="21:11:11" >
+				<attributes>
+					<attribute name="initialEndTime" class="java.lang.Double">77913.0</attribute>
+					<attribute name="orig_dist" class="java.lang.Double">6.883</attribute>
+					<attribute name="orig_duration" class="java.lang.Double">35.0</attribute>
+				</attributes>
+			</activity>
+			<leg mode="walk" dep_time="21:11:11">
+				<attributes>
+					<attribute name="routingMode" class="java.lang.String">ride</attribute>
+				</attributes>
+				<route type="generic" start_link="-107747049#1" end_link="-107747049#1" trav_time="00:03:32" distance="261.8072522050386"></route>
+			</leg>
+			<activity type="ride interaction" link="-107747049#1" x="791598.0080490122" y="5819921.989575607" max_dur="00:00:00" >
+			</activity>
+			<leg mode="ride" dep_time="21:14:43">
+				<attributes>
+					<attribute name="routingMode" class="java.lang.String">ride</attribute>
+				</attributes>
+				<route type="links" start_link="-107747049#1" end_link="-185995541#1" trav_time="00:16:11" distance="7961.159999999999" vehicleRefId="berlin_aee537fc_ride">-107747049#1 899215469#0 899215469#1 899215472 -899215471#3 -899215471#2 25199874#0 4766610 4724992#0 49939493#0 148670262 49939494#0 49939494#1 868144484#0 30711862#0 30711862#3 30711862#4 30711863#0 30711863#2 30711863#4 30711863#5 607745745#0 30123978#0 148700792#0 4724987#0 19660028#0 19660028#3 19660028#4 19660028#5 -4724893#2 -1017767538#1 -437191430 4724895#0 28819637 148290715 28819638#0 -203482878#1 -213287146#1 148093699#0 148093700#0 148093700#1 148093700#4 148093700#5 148093700#8 29616523 148288808 -114381453 -27116947#0 -114381359#3 -114381359#2 -114381359#1 -114381359#0 -911579765 -37906672#3 -312541896 -185995541#1</route>
+			</leg>
+			<activity type="ride interaction" link="-185995541#1" x="795924.8030980447" y="5815356.857411734" max_dur="00:00:00" >
+			</activity>
+			<leg mode="walk" dep_time="21:30:32">
+				<attributes>
+					<attribute name="routingMode" class="java.lang.String">ride</attribute>
+				</attributes>
+				<route type="generic" start_link="-185995541#1" end_link="-185995541#1" trav_time="00:00:36" distance="44.951004644334716"></route>
+			</leg>
+			<activity type="home_86400" link="-185995541#1" x="795927.5366052117" y="5815322.387932612" >
+				<attributes>
+					<attribute name="orig_dist" class="java.lang.Double">6.887</attribute>
+					<attribute name="orig_duration" class="java.lang.Double">35.0</attribute>
+				</attributes>
+			</activity>
+		</plan>
+
+	</person>
