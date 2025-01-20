@@ -32,16 +32,16 @@ public class RunBerlinEmission {
 
 	private static final Logger log = LogManager.getLogger(RunBerlinEmission.class);
 
-	private static final String folderName = "micro100-sp45-pce0.5-DMC2.5-MDR0.24-iter10";
+	private static final String folderName = "micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter0";
 	private static final String basePath = "./output/" + folderName;
 	private static final String eventsFile = basePath + "/output_events.xml.gz";
 	private static final String emissionEventOutputFileName = "output_event_emission.xml.gz";
     public static final String HBEFA_FILE_COLD_AVERAGE = "csv-data/cold_avr_2020_WTT_zero.csv";
-    public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/hot_avr_2020_WTT.csv";
+    public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/EFA_HOT_Vehcat_hot_avr_WTT_all_road_type.csv";
 
 	public static void main(String[] args) {
-		Config config = loadConfig(args);
-		File rootPath = createOutputFolder(basePath);
+		Config config = ConfigUtils.loadConfig("input/v6.4/emission-average/config_emission.xml");
+		File rootPath = createOutputFolder(basePath);   // e.g. rootPath = ./output/micro100-iter0/emission-analysis/
 		prepareConfig(config, rootPath, HBEFA_FILE_WARM_AVERAGE, HBEFA_FILE_COLD_AVERAGE);
 		Scenario scenario = ScenarioUtils.loadScenario(config);
 
@@ -63,7 +63,7 @@ public class RunBerlinEmission {
 		// see testcase for an example
 		Config config ;
 		if ( args==null || args.length==0 || args[0]==null ) {
-			config = ConfigUtils.loadConfig( "input/v6.4/emission-average/config_emission.xml" );
+			config = ConfigUtils.loadConfig( "xxx" );
 		} else {
 			config = ConfigUtils.loadConfig( args );
 		}
@@ -86,7 +86,7 @@ public class RunBerlinEmission {
 		config.controller().setOutputDirectory(rootPath.getPath());
 		config.network().setInputFile("../../../" + rootPath.getParentFile() + "/output_network.xml.gz");
 		config.plans().setInputFile("../../../" + rootPath.getParentFile() + "/output_plans.xml.gz");
-		config.vehicles().setVehiclesFile("../../../" + rootPath.getParentFile() + "/output_allVehicles.xml.gz");
+		config.vehicles().setVehiclesFile("../../../" + rootPath.getParentFile() + "/output_vehicles.xml.gz");
 		config.controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 
 		EmissionsConfigGroup emissionsConfig = ConfigUtils.addOrGetModule(config, EmissionsConfigGroup.class);
@@ -102,6 +102,8 @@ public class RunBerlinEmission {
         // add hbefa link attributes.
         HbefaRoadTypeMapping roadTypeMapping = OsmHbefaMapping.build();
         roadTypeMapping.addHbefaMappings(scenario.getNetwork());
+
+		setupVehicleAttributes(scenario);
 	}
 
 	public static void setupHbefaRoadTypes(Scenario scenario) {

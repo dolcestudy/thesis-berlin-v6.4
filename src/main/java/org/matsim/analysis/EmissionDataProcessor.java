@@ -80,11 +80,11 @@ public class EmissionDataProcessor {
 					String vehicleType = vehicleMap.getOrDefault(vehicleId, "unknown");
 
 					String vehicleCategory = switch (vehicleType) {
-						case "car", "golf1.4", "ride"                                            -> "car";
-						case "heavy40t", "medium18t", "light8t", "freight", "truck"              -> "HGV";
-						case "mercedes313", "vwCaddy"                                            -> "LCV";
+						case "car", "golf1.4", "ride", "vwCaddy"                                 -> "car";
+						case "heavy40t", "medium18t", "freight", "truck"                         -> "HGV";
+						case "mercedes313", "light8t"                                            -> "LCV";
 						case "microcar"                                                          -> "microcar";
-						case "Ferry_veh_type", "RE_RB_veh_type", "Bus_veh_type", "Tram_veh_type" -> "pt";
+						case "Tram_veh_type", "Ferry_veh_type", "Bus_veh_type", "RE_RB_veh_type", "S-Bahn_veh_type", "U-Bahn_veh_type" -> "pt";
 						default                                                                  -> "unknown";
 					};
 

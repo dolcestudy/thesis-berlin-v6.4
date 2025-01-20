@@ -53,23 +53,23 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 
 	// Configure here
 	public static final List<String> planFiles = List.of(
-		"berlin-v6.4-10pct-plans-micro00pct.xml.gz"
+//		"berlin-v6.4-10pct-plans-micro00pct.xml.gz"
 //		"berlin-v6.4-10pct-plans-micro20pct.xml.gz",
 //		"berlin-v6.4-10pct-plans-micro40pct.xml.gz",
 //		"berlin-v6.4-10pct-plans-micro60pct.xml.gz",
 //		"berlin-v6.4-10pct-plans-micro80pct.xml.gz",
-//		"berlin-v6.4-10pct-plans-micro81pct.xml.gz"  // "berlin-v6.3-10pct-plans-micro80pct.under45kmh.xml.gz",
-		// "berlin-v6.4-10pct-plans-micro100pct.xml.gz"
+//		"berlin-v6.4-10pct-plans-micro81pct.xml.gz"  // "berlin-v6.4-10pct-plans-micro80pct.under45kmh.xml.gz",
+		 "berlin-v6.4-10pct-plans-micro100pct.xml.gz"
 	);
-	public static final List<Double> microSpeeds = List.of(45.0);  // List.of(30.0, 45.0, 60.0, 75.0, 90.0)
+	public static final List<Double> microSpeeds = List.of(60.0);  // List.of(30.0, 45.0, 60.0, 75.0, 90.0)
 	public static final List<Double> microPCEs = List.of(0.5);  // List.of(0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
 	public static final double microDailyMonetaryConstant = -2.5;
 	public static final double microMonetaryDistanceRate = -0.24E-4;
-	public static final int iterNum = 1;
-	public static final String[] subTourModes = {"microcar", "bike", "walk", "pt", "ride"};
-	public static final String[] subTourChainModes = {"microcar", "bike"};
+	public static final int iterNum = 0;
+//	public static final String[] subTourModes = {"microcar", "bike", "walk", "pt", "ride"};
+//	public static final String[] subTourChainModes = {"microcar", "bike"};
     public static final String HBEFA_FILE_COLD_AVERAGE = "csv-data/cold_avr_2020_WTT_zero.csv";
-    public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/hot_avr_2020_WTT.csv";
+    public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/EFA_HOT_Vehcat_hot_avr_WTT_all_road_type.csv";
 	public static final String defaultPlan = DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta;
 
 	//No need to touch here
@@ -116,7 +116,7 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 
 					// emission analysis
 					try {
-						Config emissionConfig = RunBerlinEmission.loadConfig(args);
+						Config emissionConfig = ConfigUtils.loadConfig("input/v6.4/emission-average/config_emission.xml");
 						File rootPath = RunBerlinEmission.createOutputFolder("./output/" + folderName); // Use the dynamically generated folder name
 						RunBerlinEmission.prepareConfig(emissionConfig, rootPath, HBEFA_FILE_WARM_AVERAGE, HBEFA_FILE_COLD_AVERAGE);
 
@@ -220,8 +220,8 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 
 		// here additional configuration by Ikuma
 
-		config.subtourModeChoice().setModes(subTourModes);
-		config.subtourModeChoice().setChainBasedModes(subTourChainModes);
+//		config.subtourModeChoice().setModes(subTourModes);
+//		config.subtourModeChoice().setChainBasedModes(subTourChainModes);
 		config.controller().setLastIteration(iterNum);
 		config.plans().setInputFile(planFile);
 

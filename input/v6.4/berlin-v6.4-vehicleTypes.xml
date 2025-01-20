@@ -198,7 +198,7 @@
 			</attributes>
 		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
-		<networkMode networkMode="truck"/>
+		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
 	</vehicleType>
 
@@ -224,7 +224,7 @@
 			</attributes>
 		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
-		<networkMode networkMode="truck"/>
+		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
 	</vehicleType>
 
