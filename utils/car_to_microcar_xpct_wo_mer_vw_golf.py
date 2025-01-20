@@ -25,10 +25,6 @@ def create_plan_file(input_file, output_file, vehicle_file, microcar_pct):
         tree = ET.parse(f)
         root = tree.getroot()
 
-    # # Parse the XML files
-    # tree = ET.parse(input_file)
-    # root = tree.getroot()
-
     # Generate a random list of cars to modify
     all_car_list = get_car_list(vehicle_file)
     num_to_select = math.floor(len(all_car_list) * microcar_pct/100)
@@ -51,16 +47,17 @@ def create_plan_file(input_file, output_file, vehicle_file, microcar_pct):
         for attribute in person.findall(".//attribute[@name='vehicles']"):
             vehicles_text = attribute.text
             if '"car":' in vehicles_text:
+                # Add microcar to the person's vehicle
+                car_prefix = vehicles_text.split('"car":"')[1].split('_car')[0]
+                microcar_entry = f'"microcar":"{car_prefix}_microcar"'
+                vehicles_text = vehicles_text.replace(f'"car":"{car_prefix}_car"', f'"car":"{car_prefix}_car",{microcar_entry}', 1)
+                attribute.text = vehicles_text    
+
                 # check if the car is in the list
                 car_id = vehicles_text.split('"car":"')[1].split('"')[0]
+
                 # Modify car to microcar if the selected car is in the list
                 if car_id in changed_car_list:
-
-                    car_prefix = vehicles_text.split('"car":"')[1].split('_car')[0]
-                    microcar_entry = f'"microcar":"{car_prefix}_microcar"'
-                    vehicles_text = vehicles_text.replace(f'"car":"{car_prefix}_car"', f'"car":"{car_prefix}_car",{microcar_entry}', 1)
-                    attribute.text = vehicles_text
-
                     for plan in person.findall(".//plan"):
                         for elem in plan.iter():
                             if elem.text and "car" in elem.text:
@@ -89,14 +86,14 @@ if __name__ == "__main__":
     input_file = r"input\v6.4\berlin-v6.4-10pct-plans-micro00pct.xml.gz"
     vehicle_id_file = r"utils\berlin-v6.4.output_allVehicles.xml"
     output_file = [
-        # r"input\v6.3\berlin-v6.3-10pct-plans-micro20pct.xml.gz",
-        # r"input\v6.3\berlin-v6.3-10pct-plans-micro40pct.xml.gz",
-        # r"input\v6.3\berlin-v6.3-10pct-plans-micro60pct.xml.gz",
-        # r"input\v6.3\berlin-v6.3-10pct-plans-micro80pct.xml.gz",
+        r"input\v6.3\berlin-v6.3-10pct-plans-micro20pct.xml.gz",
+        r"input\v6.3\berlin-v6.3-10pct-plans-micro40pct.xml.gz",
+        r"input\v6.3\berlin-v6.3-10pct-plans-micro60pct.xml.gz",
+        r"input\v6.3\berlin-v6.3-10pct-plans-micro80pct.xml.gz",
         r"input\v6.4\berlin-v6.4-10pct-plans-micro100pct.xml.gz"]
-    modified_car_pct = [100]
+    modified_car_pct = [0,20,40,60,80,100]
 
-    for i in range(1):
+    for i in range(6):
         create_plan_file(input_file, output_file[i], vehicle_id_file, modified_car_pct[i])
 
 
