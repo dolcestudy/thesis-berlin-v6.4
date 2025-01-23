@@ -86,7 +86,7 @@ public class RunBerlinEmission {
 		config.controller().setOutputDirectory(rootPath.getPath());
 		config.network().setInputFile("../../../" + rootPath.getParentFile() + "/output_network.xml.gz");
 		config.plans().setInputFile("../../../" + rootPath.getParentFile() + "/output_plans.xml.gz");
-		config.vehicles().setVehiclesFile("../../../" + rootPath.getParentFile() + "/output_vehicles.xml.gz");
+		config.vehicles().setVehiclesFile("../../../" + rootPath.getParentFile() + "/output_allVehicles.xml.gz");
 		config.controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 
 		EmissionsConfigGroup emissionsConfig = ConfigUtils.addOrGetModule(config, EmissionsConfigGroup.class);
