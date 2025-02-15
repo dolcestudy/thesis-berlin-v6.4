@@ -1,0 +1,94 @@
+<person id="bb_00005f6f">
+        <attributes>
+                <attribute name="RegioStaR7" class="java.lang.Integer">7</attribute>
+                <attribute name="age" class="java.lang.Integer">40</attribute>
+                <attribute name="ars" class="java.lang.Long">120685804280</attribute>
+                <attribute name="bikeAvail" class="java.lang.String">always</attribute>
+                <attribute name="carAvail" class="java.lang.String">always</attribute>
+                <attribute name="economic_status" class="java.lang.String">medium</attribute>
+                <attribute name="employed" class="java.lang.Boolean">true</attribute>
+                <attribute name="employment" class="java.lang.String">other</attribute>
+                <attribute name="gem" class="java.lang.Integer">12068280</attribute>
+                <attribute name="hasLicense" class="java.lang.String">yes</attribute>
+                <attribute name="home_x" class="java.lang.Double">766625.23</attribute>
+                <attribute name="home_y" class="java.lang.Double">5872598.05</attribute>
+                <attribute name="household_equivalent_size" class="java.lang.Double">2.1</attribute>
+                <attribute name="household_size" class="java.lang.Integer">4</attribute>
+                <attribute name="household_type" class="java.lang.String">multi_w_children</attribute>
+                <attribute name="income" class="java.lang.Double">1333.0</attribute>
+                <attribute name="ptAboAvail" class="java.lang.String">never</attribute>
+                <attribute name="restricted_mobility" class="java.lang.Boolean">false</attribute>
+                <attribute name="sex" class="java.lang.String">f</attribute>
+                <attribute name="subpopulation" class="java.lang.String">person</attribute>
+                <attribute name="vehicles" class="org.matsim.vehicles.PersonVehicles">{"car":"bb_00005f6f_car","truck":"bb_00005f6f_truck","freight":"bb_00005f6f_freight","ride":"bb_00005f6f_ride","bike":"bb_00005f6f_bike"}</attribute>
+        </attributes>
+        <plan score="96.64196668671356" selected="yes">
+                <activity type="home_86400" link="-30051377" x="766625.23" y="5872598.05" end_time="08:28:04" >
+                        <attributes>
+                                <attribute name="initialEndTime" class="java.lang.Double">28850.0</attribute>
+                                <attribute name="orig_dist" class="java.lang.Double">0.0</attribute>
+                        </attributes>
+                </activity>
+                <leg mode="walk" dep_time="08:28:04">
+                        <attributes>
+                                <attribute name="routingMode" class="java.lang.String">car</attribute>
+                        </attributes>
+                        <route type="generic" start_link="-30051377" end_link="-30051377" trav_time="00:00:49" distance="61.41252804669024"></route>
+                </leg>
+                <activity type="car interaction" link="-30051377" x="766579.1016468322" y="5872608.239750291" max_dur="00:00:00" >
+                </activity>
+                <leg mode="car" dep_time="08:28:53">
+                        <attributes>
+                                <attribute name="routingMode" class="java.lang.String">car</attribute>
+                        </attributes>
+                        <route type="links" start_link="-30051377" end_link="-313182541#1" trav_time="00:20:53" distance="14809.529999999999" vehicleRefId="bb_00005f6f_car">series of cordinations</route>
+                </leg>
+
+                ...
+
+                <leg mode="walk" dep_time="17:07:42">
+                        <attributes>
+                                <attribute name="routingMode" class="java.lang.String">car</attribute>
+                        </attributes>
+                        <route type="generic" start_link="-30051377" end_link="-30051377" trav_time="00:00:49" distance="61.41252804669024"></route>
+                </leg>
+                <activity type="home_86400" link="-30051377" x="766625.23" y="5872598.05" >
+                        <attributes>
+                                <attribute name="orig_dist" class="java.lang.Double">30.114</attribute>
+                                <attribute name="orig_duration" class="java.lang.Double">27.0</attribute>
+                        </attributes>
+                </activity>
+        </plan>
+
+</person>
+
+
+
+<person id="person_a">
+        <attributes>
+                ...
+                <attribute name="vehicles" class="org.matsim.vehicles.PersonVehicles">
+                    {"car":"person_a_car","truck":"person_a_truck",
+                     "freight":"person_a_freight","ride":"person_a_ride",
+                     "bike":"person_a_bike"}
+                </attribute>
+        </attributes>
+        <plan score="96" selected="yes">
+                ...
+                <activity type="car interaction" link="link_a" x="point_x" y="point_y" max_dur="00:00:00" >
+                </activity>
+                <leg mode="car" dep_time="08:28:53">
+                        <attributes>
+                                <attribute name="routingMode" class="java.lang.String">car</attribute>
+                        </attributes>
+                        <route type="links" start_link="link_a" end_link="link_b" trav_time="00:20:53" 
+                                distance="14809" vehicleRefId="person_a_car">
+                            // series of nodes here  //
+                        </route>
+                </leg>
+                ...
+
+
+        </plan>
+
+</person>
