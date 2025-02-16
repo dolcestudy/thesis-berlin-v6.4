@@ -3,14 +3,14 @@ from collections import Counter
 import gzip
 
 # Path to the XML file
-xml_file = r"output\micro000-iter0\output_allVehicles.xml.gz"  # Replace with your file path
+xml_file = r"utils\legacy\berlin-v6.4.output_allVehicles.xml"  # Replace with your file path
 
 # Dictionary to store counts of each vehicle type
 vehicle_counts = Counter()
 
 # Open and parse the gzipped XML file
-with gzip.open(xml_file, 'rt', encoding='utf-8') as f:
-    tree = ET.parse(f)
+# with gzip.open(xml_file, 'rt', encoding='utf-8') as f:
+tree = ET.parse(xml_file)
 
 root = tree.getroot()
 

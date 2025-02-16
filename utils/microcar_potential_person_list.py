@@ -5,7 +5,7 @@ import xml.etree.ElementTree as ET
 import csv
 
 def get_all_persons_by_income(person_file):
-    df = pd.read_csv(person_file)
+    df = pd.read_csv(person_file, sep=";")
 
     # Convert 'income' to numeric, setting errors='coerce' to convert non-numeric (empty) values to NaN
     df["income"] = pd.to_numeric(df["income"], errors="coerce")
@@ -91,7 +91,7 @@ def get_persons_with_special_vehicle_type(plan_file, vehicle_type):
 
 def get_persons_household_1_2_empty(person_file):
     # Read the CSV file
-    df = pd.read_csv(person_file, dtype=str, low_memory=False)
+    df = pd.read_csv(person_file, sep=";", dtype=str, low_memory=False)
 
     # Convert household_size to numeric
     df["household_size"] = pd.to_numeric(df["household_size"], errors="coerce")
@@ -125,27 +125,33 @@ def get_persons_car_travel_less_200km(legs_file):
 
 if __name__ == '__main__':
     # Input files
-    legs_file = r"output\micro000pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter0\berlin-v6.4.output_legs.csv"
-    persons_file = r"output\micro000pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter0\berlin-v6.4.output_persons.csv"
-    plans_file = r"input\v6.4\berlin-v6.4-10pct-plans-micro00pct.xml.gz"
+    legs_file = r"output\3pct-0iteration\micro000pct-iter0\output_legs.csv"
+    persons_file = r"output\3pct-0iteration\micro000pct-iter0\output_persons.csv"
+    plans_file = r"input\v6.4\3pct-plans\berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
 
     # Generate lists
 
     print("Step 1: List all agents by income")
     persons_by_income = get_all_persons_by_income(persons_file)
+    print(f"All agents: {len(persons_by_income)}")
 
     print("Step 2: List agents using cars")
     car_user_list = set(get_persons_with_cars_from_legs(legs_file))
+    print(f"Agents using cars: {len(car_user_list)}")
 
     print("Step 3: List agents using mercedes313 and vwCaddy")
     mercedes_list = set(get_persons_with_special_vehicle_type(plans_file, "mercedes313"))
     vwcaddy_list = set(get_persons_with_special_vehicle_type(plans_file, "vwCaddy"))
+    print(f"Agents using mercedes313: {len(mercedes_list)}")
+    print(f"Agents using vwCaddy: {len(vwcaddy_list)}")
 
     print("Step 4: List agents traveling less than 200km with cars")
     cartravel_less_200km_list = set(get_persons_car_travel_less_200km(legs_file))
+    print(f"Agents with cars traveling less than 200km: {len(cartravel_less_200km_list)}")
 
     print("Step 5: List agents whose household size is either 1, 2, or none")
     persons_household_1_2_nan_list = set(get_persons_household_1_2_empty(persons_file))
+    print(f"Agents with household either 1, 2, and none: {len(persons_household_1_2_nan_list)}")
 
     print("Step 6: Filter agents by algorithms")
     agents_filtered = [x for x in persons_by_income 
@@ -154,6 +160,7 @@ if __name__ == '__main__':
                         and x not in vwcaddy_list 
                         and x in cartravel_less_200km_list
                         and x in persons_household_1_2_nan_list]
+    print(f"Agents identified having the potential to switch to microcars: {len(agents_filtered)}")
 
     print("Step 7: Write csv file")
     with open("potential_persons.csv", mode="w", newline="") as file:
