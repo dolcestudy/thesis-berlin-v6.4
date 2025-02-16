@@ -11,10 +11,20 @@ def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
     num_agents = math.floor(len(agent_list) * microcar_pct/100)
     microcar_agents = set(agent_list[:num_agents])
 
+
     # Open the output file and write the XML declaration & DOCTYPE first
     with gzip.open(output_file, "wb") as f_out:
         f_out.write(b'<?xml version="1.0" encoding="utf-8"?>\n')
-        f_out.write(b'<!DOCTYPE population SYSTEM "http://www.matsim.org/files/dtd/population_v6.dtd">\n')
+        f_out.write(b'<!DOCTYPE population SYSTEM "http://www.matsim.org/files/dtd/population_v6.dtd">\n\n')
+        f_out.write(b'<population>\n\n')
+
+        # Write the coordinate reference system attribute
+        f_out.write(b'    <attributes>\n')
+        f_out.write(b'        <attribute name="coordinateReferenceSystem" class="java.lang.String">EPSG:25832</attribute>\n')
+        f_out.write(b'    </attributes>\n\n')
+
+        f_out.write(b'    <!-- ====================================================================== -->\n\n')
+
 
         # Open and parse the XML incrementally
         with gzip.open(original_plan_file, 'rb') as f_in:
@@ -45,7 +55,7 @@ def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
 
                     # Modify travel mode in plan elements if the car is in the list
                     if person_id in microcar_agents:
-                        print(f"person hit! {person_id}")
+                        # print(f"person hit! {person_id}")
                         for plan in elem.findall(".//plan"):
                             for sub_elem in plan.iter():
                                 if sub_elem.text and "car" in sub_elem.text:
@@ -64,23 +74,28 @@ def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
                     f_out.write(ET.tostring(elem, encoding='utf-8'))
                     root.clear()  # Free memory
 
+        # Close the population tag
+        f_out.write(b'\n</population>\n')
+
+
     print(f"Modifications applied. Check the output file: {output_file}")
 
 
 # Run the program
 if __name__ == "__main__":
 
-    original_plan_file = r"input\v6.4\berlin-v6.4-10pct-plans-micro00pct.xml.gz"
+    original_plan_file = r"input\v6.4\3pct-plans\berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
     df = pd.read_csv("potential_persons.csv", header=None)
     agents_list = df[0].tolist()
     # print(potential_agents[1:10])
     
     output_file = [
-        r"input\v6.3\berlin-v6.3-10pct-plans-micro20pct.xml.gz",
-        r"input\v6.3\berlin-v6.3-10pct-plans-micro40pct.xml.gz",
-        r"input\v6.3\berlin-v6.3-10pct-plans-micro60pct.xml.gz",
-        r"input\v6.3\berlin-v6.3-10pct-plans-micro80pct.xml.gz",
-        r"input\v6.4\berlin-v6.4-10pct-plans-micro100pct.xml.gz"]
+        r"input\v6.4\berlin-v6.4-3pct-plans-micro00pct.xml.gz",
+        r"input\v6.4\berlin-v6.4-3pct-plans-micro20pct.xml.gz",
+        r"input\v6.4\berlin-v6.4-3pct-plans-micro40pct.xml.gz",
+        r"input\v6.4\berlin-v6.4-3pct-plans-micro60pct.xml.gz",
+        r"input\v6.4\berlin-v6.4-3pct-plans-micro80pct.xml.gz",
+        r"input\v6.4\berlin-v6.4-3pct-plans-micro100pct.xml.gz"]
     modified_car_pct = [0,20,40,60,80,100]
 
 
