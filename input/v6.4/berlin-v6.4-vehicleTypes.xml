@@ -23,12 +23,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="31.07" costsPerMeter="1.5E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="0.5"/>
 		<networkMode networkMode="microcar"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -53,12 +47,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="31.07" costsPerMeter="1.5E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
 		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -97,12 +85,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="31.07" costsPerMeter="1.5E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
 		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -165,12 +147,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="31.07" costsPerMeter="1.5E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
 		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -191,12 +167,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="27.27" costsPerMeter="1.7E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
 		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -217,12 +187,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="36.42" costsPerMeter="2.6E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="1.0"/>
 		<networkMode networkMode="car"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -243,12 +207,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="63.49" costsPerMeter="4.0E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="2.0"/>
 		<networkMode networkMode="truck"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -269,12 +227,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="80.47" costsPerMeter="5.3E-4" costsPerSecond="0.0049">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.0049</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.0049</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="3.0"/>
 		<networkMode networkMode="truck"/>
 		<flowEfficiencyFactor factor="1.0"/>
@@ -294,12 +246,6 @@
 				<attribute name="HbefaEmissionsConcept" class="java.lang.String">average</attribute>
 			</attributes>
 		</engineInformation>
-		<costInformation fixedCostsPerDay="126.58" costsPerMeter="6.9E-4" costsPerSecond="0.00559">
-			<attributes>
-				<attribute name="costsPerSecondInService" class="java.lang.Double">0.00559</attribute>
-				<attribute name="costsPerSecondWaiting" class="java.lang.Double">0.00559</attribute>
-			</attributes>
-		</costInformation>
 		<passengerCarEquivalents pce="4.0"/>
 		<networkMode networkMode="truck"/>
 		<flowEfficiencyFactor factor="1.0"/>
