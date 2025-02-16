@@ -51,35 +51,30 @@ import java.util.Set;
 @CommandLine.Command(header = ":: Open Berlin Scenario ::", version = OpenBerlinScenario.VERSION, mixinStandardHelpOptions = true)
 public class RunSensitivityAnalysis extends MATSimApplication {
 
-	// Configure here
-	public static final List<String> planFiles = List.of(
-//		"berlin-v6.4-10pct-plans-micro00pct.xml.gz"
-//		"berlin-v6.4-10pct-plans-micro20pct.xml.gz",
-//		"berlin-v6.4-10pct-plans-micro40pct.xml.gz",
-//		"berlin-v6.4-10pct-plans-micro60pct.xml.gz",
-//		"berlin-v6.4-10pct-plans-micro80pct.xml.gz",
-//		"berlin-v6.4-10pct-plans-micro81pct.xml.gz"  // "berlin-v6.4-10pct-plans-micro80pct.under45kmh.xml.gz",
-		 "berlin-v6.4-10pct-plans-micro100pct.xml.gz"
-	);
-	public static final List<Double> microSpeeds = List.of(60.0);  // List.of(30.0, 45.0, 60.0, 75.0, 90.0)
-	public static final List<Double> microPCEs = List.of(0.5);  // List.of(0.5, 0.6, 0.7, 0.8, 0.9, 1.0)
-	public static final double microDailyMonetaryConstant = -2.5;
-	public static final double microMonetaryDistanceRate = -0.24E-4;
-	public static final int iterNum = 0;
-//	public static final String[] subTourModes = {"microcar", "bike", "walk", "pt", "ride"};
-//	public static final String[] subTourChainModes = {"microcar", "bike"};
-    public static final String HBEFA_FILE_COLD_AVERAGE = "csv-data/cold_avr_2020_WTT_zero.csv";
-    public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/EFA_HOT_Vehcat_hot_avr_WTT_all_road_type.csv";
-	public static final String defaultPlan = DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta;
-
-	//No need to touch here
+	// General configuration
+	public static final int iterNum = 400;
 	public static final String VERSION = "6.4";
 	public static final String CRS = "EPSG:25832";
+	public static final String configFile = "input/v6.4/berlin-v6.4.config.xml";
+	public static final double sampleSize = 0.03;
 
+	// Sensitivity Analysis configuration
+	public static final List<Double> microSpeeds = List.of(50.0); //List.of(50.0, 70.0, 90.0, 120.0);
+	public static final List<Double> microPCEs = List.of(0.5); //List.of(0.5, 0.6, 0.7);
+	public static final List<String> planFiles = List.of(
+//		"berlin-v6.4-3pct-plans-micro20pct.xml.gz",
+//		"berlin-v6.4-3pct-plans-micro40pct.xml.gz",
+//		"berlin-v6.4-3pct-plans-micro60pct.xml.gz",
+//		"berlin-v6.4-3pct-plans-micro80pct.xml.gz",
+//		"berlin-v6.4-3pct-plans-micro100pct.xml.gz"
+		"berlin-v6.4-3pct-plans-micro00pct.xml.gz"
+	);
 
+	// emission input files
+	public static final String emissionConfigFile = "input/v6.4/emission-average/config_emission.xml";
+    public static final String HBEFA_FILE_COLD_AVERAGE = "csv-data/cold_avr_2020_WTT_zero.csv";
+    public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/EFA_HOT_Vehcat_hot_avr_WTT_all_road_type.csv";
 
-	@CommandLine.Mixin
-	private final SampleOptions sample = new SampleOptions(10, 25, 3, 1);
 
 	public RunSensitivityAnalysis() {
 		super(String.format("input/v%s/berlin-v%s.config.xml", VERSION, VERSION));
@@ -89,24 +84,20 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 		for (String planFile : planFiles) {
 			for (double microSpeed : microSpeeds) {
 				for (double microPCE : microPCEs) {
+
 					// Generate folderName dynamically
-					String folderName = String.format(
-						"micro%spct-sp%.0f-pce%.1f-DMC%.1f-MDR%.2f-iter%d",
-						extractPercentage(planFile), microSpeed, microPCE,
-						microDailyMonetaryConstant, microMonetaryDistanceRate * 1e4, iterNum
-					);
+					String folderName = String.format("micro%spct-sp%.0f-pce%.1f-iter%d",extractPercentage(planFile), microSpeed, microPCE, iterNum);
 
 					System.out.printf("Running simulation for folderName = %s%n", folderName);
 
 					// matsim simulation
 					try {
 						RunSensitivityAnalysis instance = new RunSensitivityAnalysis();
-						Config config = instance.prepareConfig(ConfigUtils.loadConfig("input/v6.4/berlin-v6.4.config.xml"), folderName, planFile);
+						Config config = instance.prepareConfig(ConfigUtils.loadConfig(configFile), folderName, planFile);
 						Scenario scenario = ScenarioUtils.loadScenario(config);
 						instance.prepareScenario(scenario, microSpeed, microPCE);
 						Controler controler = new Controler(scenario);
 						instance.prepareControler(controler);
-
 						controler.run();
 					} catch (Exception e) {
 						e.printStackTrace();
@@ -116,14 +107,13 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 
 					// emission analysis
 					try {
-						Config emissionConfig = ConfigUtils.loadConfig("input/v6.4/emission-average/config_emission.xml");
+						Config emissionConfig = ConfigUtils.loadConfig(emissionConfigFile);
 						File rootPath = RunBerlinEmission.createOutputFolder("./output/" + folderName); // Use the dynamically generated folder name
 						RunBerlinEmission.prepareConfig(emissionConfig, rootPath, HBEFA_FILE_WARM_AVERAGE, HBEFA_FILE_COLD_AVERAGE);
 
 						Scenario emissionScenario = ScenarioUtils.loadScenario(emissionConfig);
                         RunBerlinEmission.prepareScenario(emissionScenario);
-						// RunBerlinEmission.setupHbefaRoadTypes(emissionScenario);
-						// RunBerlinEmission.setupVehicleAttributes(emissionScenario);
+
 
 						EventsManager eventsManager = EventsUtils.createEventsManager();
 						RunBerlinEmission.initializeEmissionModule(emissionConfig, emissionScenario, eventsManager);
@@ -142,13 +132,12 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 		}
 	}
 
-    //////
+
 	private static String extractPercentage(String planFile) {
 		String percentage = planFile.replaceAll(".*-micro(\\d+)pct.*", "$1");
 		return String.format("%03d", Integer.parseInt(percentage));
 	}
 
-    //////
 	protected Config prepareConfig(Config config, String folderName, String planFile) {
 
         SimWrapperConfigGroup sw = ConfigUtils.addOrGetModule(config, SimWrapperConfigGroup.class);
@@ -157,9 +146,11 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 		System.out.println(config.controller().getOutputDirectory());
 		config.controller().setOverwriteFileSetting( OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists );
 
-		if (sample.isSet()) {
-			double sampleSize = sample.getSample();
+		config.controller().setLastIteration(iterNum);
+		config.plans().setInputFile(planFile);
 
+		{
+			System.out.println("Sample size: " + sampleSize);
 			config.qsim().setFlowCapFactor(sampleSize);
 			config.qsim().setStorageCapFactor(sampleSize);
 
@@ -167,9 +158,9 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 			config.counts().setCountsScaleFactor(sampleSize);
 			sw.sampleSize = sampleSize;
 
-			config.controller().setRunId(sample.adjustName(config.controller().getRunId()));
-			config.controller().setOutputDirectory(sample.adjustName(config.controller().getOutputDirectory()));
-			config.plans().setInputFile(sample.adjustName(config.plans().getInputFile()));
+			// to resolve the congestion issue of transit vehicles that occurs due to downscaling the sample size
+			// Refer to https://github.com/matsim-org/matsim-code-examples/issues/395 for more details
+			config.qsim().setPcuThresholdForFlowCapacityEasing( 0.1 );
 		}
 
         config.qsim().setUsingTravelTimeCheckInTeleportation(true);
@@ -182,7 +173,7 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 		for (String subpopulation : List.of("person", "freight", "goodsTraffic", "commercialPersonTraffic", "commercialPersonTraffic_service")) {
 			config.replanning().addStrategySettings(
 				new ReplanningConfigGroup.StrategySettings()
-					.setStrategyName(defaultPlan)
+					.setStrategyName(DefaultPlanStrategiesModule.DefaultSelector.ChangeExpBeta)
 					.setWeight(1.0)
 					.setSubpopulation(subpopulation)
 			);
@@ -209,32 +200,19 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 				.setSubpopulation("person")
 		);
 
-		// Need to switch to warning for best score
-		if (defaultPlan.equals(DefaultPlanStrategiesModule.DefaultSelector.BestScore)) {
-			config.vspExperimental().setVspDefaultsCheckingLevel(VspExperimentalConfigGroup.VspDefaultsCheckingLevel.warn);
-		}
 
 		// Bicycle config must be present
 		ConfigUtils.addOrGetModule(config, BicycleConfigGroup.class);
 
-
-		// here additional configuration by Ikuma
-
-//		config.subtourModeChoice().setModes(subTourModes);
-//		config.subtourModeChoice().setChainBasedModes(subTourChainModes);
-		config.controller().setLastIteration(iterNum);
-		config.plans().setInputFile(planFile);
-
-
 		// scoring for microcar
 		{
 			ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams("microcar");
-			params.setConstant(-0.5341414592094356);
-			params.setDailyMonetaryConstant(microDailyMonetaryConstant);
+			params.setConstant(-0.60);
+			params.setDailyMonetaryConstant(-3.0);
 			params.setDailyUtilityConstant(0.0);
 			params.setMarginalUtilityOfDistance(0.0);
 			params.setMarginalUtilityOfTraveling(0.0);
-			params.setMonetaryDistanceRate(microMonetaryDistanceRate);
+			params.setMonetaryDistanceRate(-2.39E-5);
 			params.setMode("microcar");
 
 			config.scoring().addModeParams(params);
@@ -245,6 +223,8 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 
     //////
 	protected void prepareScenario(Scenario scenario, double microSpeed, double microPCE) {
+
+		// Add microcar mode to all the links where car mode is allowed
 		for (Link link : scenario.getNetwork().getLinks().values()) {
 			Set<String> allowedModes = new HashSet<>(link.getAllowedModes());
 			if (allowedModes.contains("car")) {
@@ -253,6 +233,7 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 			link.setAllowedModes(allowedModes);
 		}
 
+		// Add PCE and Max. speed of microcar to the vehicle file based on values defined in this Java file
 		for (VehicleType vehicleType : scenario.getVehicles().getVehicleTypes().values()) {
 			Id<VehicleType> vehicleTypeId = vehicleType.getId();
 			if (Objects.equals(vehicleTypeId.toString(), "microcar")) {
@@ -260,6 +241,14 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 				vehicleType.setPcuEquivalents(microPCE);          // Apply microPCE
 			}
 		}
+
+		// Adjust the PCE of transit vehicles (public transportation) along with the sample size
+		// Please refer to https://github.com/matsim-org/matsim-code-examples/issues/395 for the reason
+		for (VehicleType vehicleType : scenario.getTransitVehicles().getVehicleTypes().values()) {
+			double originalVehiclePce = vehicleType.getPcuEquivalents();
+			vehicleType.setPcuEquivalents(originalVehiclePce * sampleSize);
+		}
+
 	}
 
 	@Override

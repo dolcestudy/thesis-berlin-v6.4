@@ -80,13 +80,25 @@ public class EmissionDataProcessor {
 					String vehicleType = vehicleMap.getOrDefault(vehicleId, "unknown");
 
 					String vehicleCategory = switch (vehicleType) {
-						case "car", "golf1.4", "ride", "vwCaddy"                                 -> "car";
+						case "car", "ride", "vwCaddy","golf1.4"                                  -> "car";
 						case "heavy40t", "medium18t", "freight", "truck"                         -> "HGV";
 						case "mercedes313", "light8t"                                            -> "LCV";
-						case "microcar"                                                          -> "microcar";
+						case "microcar"                                                          -> "microcar";  // add "golf1.4"???
 						case "Tram_veh_type", "Ferry_veh_type", "Bus_veh_type", "RE_RB_veh_type", "S-Bahn_veh_type", "U-Bahn_veh_type" -> "pt";
 						default                                                                  -> "unknown";
 					};
+
+//					String vehicleCategory = switch (vehicleType) {
+//						case "car"                                -> "car";
+//						case "ride"                                -> "ride";
+//						case "golf1.4"                              -> "golf";
+//						case "vwCaddy"                                 -> "vwCaddy";
+//						case "heavy40t", "medium18t", "freight", "truck"                         -> "HGV";
+//						case "mercedes313", "light8t"                                            -> "LCV";
+//						case "microcar"                                                          -> "microcar";
+//						case "Tram_veh_type", "Ferry_veh_type", "Bus_veh_type", "RE_RB_veh_type", "S-Bahn_veh_type", "U-Bahn_veh_type" -> "pt";
+//						default                                                                  -> "unknown";
+//					};
 
 					System.out.println(vehicleCategory);
 
@@ -216,9 +228,9 @@ public class EmissionDataProcessor {
 
 
     public static void main(String[] args) throws Exception {
-        String vehicleFile = "output/micro000-iter10/emission-analysis/output_vehicles.xml.gz";
-        String eventFile = "output/micro000-iter10/emission-analysis/output_event_emission.xml.gz";
-        String outputFile = "output/micro000-iter10/emission-analysis/emissions_summary.xlsx";
+        String vehicleFile = "output/micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter1/emission-analysis/output_vehicles.xml.gz";
+        String eventFile = "output/micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter1/emission-analysis/output_event_emission.xml.gz";
+        String outputFile = "output/micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter1/emission-analysis/emissions_summary_2.xlsx";
 
         System.out.println("Start parsing the vehicle file");
         Map<String, String> vehicleMap = parseVehicleFile(vehicleFile);
