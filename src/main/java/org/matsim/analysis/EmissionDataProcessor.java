@@ -1,5 +1,7 @@
 package org.matsim.analysis;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.xml.sax.Attributes;
@@ -10,147 +12,135 @@ import java.io.*;
 import java.util.*;
 import java.util.zip.GZIPInputStream;
 
-public class EmissionDataProcessor {
+/**
+ * Utility class for processing emission data from MATSim simulation.
+ * It reads vehicle and event files, aggregates data, and exports results to Excel.
+ */
+public final class EmissionDataProcessor {
 
-    // Vehicle file parsing
-    public static Map<String, String> parseVehicleFile(String vehicleFile) throws Exception {
-        Map<String, String> vehicleMap = new HashMap<>();
-        InputStream inputStream = new GZIPInputStream(new FileInputStream(vehicleFile));
+	private static final Logger logger = LogManager.getLogger(EmissionDataProcessor.class);
 
-        // SAXParserFactory for XML parsing
-        javax.xml.parsers.SAXParserFactory factory = javax.xml.parsers.SAXParserFactory.newInstance();
-        javax.xml.parsers.SAXParser parser = factory.newSAXParser();
+	private EmissionDataProcessor() {
+		throw new UnsupportedOperationException("This is a utility class and cannot be instantiated");
+	}
 
-        // SAX handler to parse XML
-        DefaultHandler handler = new DefaultHandler() {
-            boolean vehicleId = false;
-            boolean vehicleType = false;
 
-            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                if (qName.equals("vehicle")) {
-                    vehicleId = attributes.getValue("id") != null;
-                    vehicleType = attributes.getValue("type") != null;
-                    if (vehicleId && vehicleType) {
-                        String id = attributes.getValue("id");
-                        String type = attributes.getValue("type");
-                        vehicleMap.put(id, type);
-                    }
-                }
-            }
-        };
+	/**
+	 * Parses the vehicle file and extracts vehicle types.
+	 * @param vehicleFile Path to the vehicle file (compressed XML).
+	 * @return A map where the key is the vehicle ID and the value is the vehicle type.
+	 * @throws Exception If an error occurs while reading the file.
+	 */
+	public static Map<String, String> parseVehicleFile(String vehicleFile) throws IOException, SAXException, javax.xml.parsers.ParserConfigurationException {
+		Map<String, String> vehicleMap = new HashMap<>();
+		InputStream inputStream = new GZIPInputStream(new FileInputStream(vehicleFile));
 
-        parser.parse(inputStream, handler);
-        inputStream.close();
-        return vehicleMap;
-    }
 
-    // Event file parsing with memory optimization
-    public static Map<String, Map<Double, Map<String, EmissionData>>> parseEventFile(String eventFile, Map<String, String> vehicleMap) throws Exception {
-        Map<String, Map<Double, Map<String, EmissionData>>> data = new HashMap<>();
-        InputStream inputStream = new GZIPInputStream(new FileInputStream(eventFile));
+		javax.xml.parsers.SAXParserFactory factory = javax.xml.parsers.SAXParserFactory.newInstance();
+		javax.xml.parsers.SAXParser parser = factory.newSAXParser();
 
-        // SAXParserFactory for XML parsing
-        javax.xml.parsers.SAXParserFactory factory = javax.xml.parsers.SAXParserFactory.newInstance();
-        javax.xml.parsers.SAXParser parser = factory.newSAXParser();
 
-        // SAX handler to parse XML
-        DefaultHandler handler = new DefaultHandler() {
-            boolean isWarmEmissionEvent = false;
-            String vehicleId;
-            Double time;
+		DefaultHandler handler = new DefaultHandler() {
+			boolean vehicleId = false;
+			boolean vehicleType = false;
+
+			public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+				if (qName.equals("vehicle")) {
+					vehicleId = attributes.getValue("id") != null;
+					vehicleType = attributes.getValue("type") != null;
+					if (vehicleId && vehicleType) {
+						String id = attributes.getValue("id");
+						String type = attributes.getValue("type");
+						vehicleMap.put(id, type);
+					}
+				}
+			}
+		};
+
+		parser.parse(inputStream, handler);
+		inputStream.close();
+		return vehicleMap;
+	}
+
+	/**
+	 * Parses the event file and aggregates emissions data.
+	 * @param eventFile Path to the event file (compressed XML).
+	 * @param vehicleMap A map of vehicle IDs to vehicle types.
+	 * @return A nested map containing emissions data by vehicle type, hour, and link ID.
+	 * @throws Exception If an error occurs while reading the file.
+	 */
+	public static Map<String, Map<Double, Map<String, EmissionData>>> parseEventFile(String eventFile, Map<String, String> vehicleMap) throws IOException, SAXException, javax.xml.parsers.ParserConfigurationException, NumberFormatException {
+		Map<String, Map<Double, Map<String, EmissionData>>> data = new HashMap<>();
+		InputStream inputStream = new GZIPInputStream(new FileInputStream(eventFile));
+
+
+		javax.xml.parsers.SAXParserFactory factory = javax.xml.parsers.SAXParserFactory.newInstance();
+		javax.xml.parsers.SAXParser parser = factory.newSAXParser();
+
+
+		DefaultHandler handler = new DefaultHandler() {
+			boolean isWarmEmissionEvent = false;
+			String vehicleId;
+			Double time;
 			double hour;
-            String linkId;
-            double fcMj;
-            double co2e;
+			String linkId;
+			double fcMj;
+			double co2e;
 
-            public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
-                if (qName.equals("event") && attributes.getValue("type").equals("warmEmissionEvent")) {
-                    vehicleId = attributes.getValue("vehicleId");
-                    time = Double.parseDouble(attributes.getValue("time"));
-					hour = Math.floor(time/3600);
-                    linkId = attributes.getValue("linkId");
-                    fcMj = Double.parseDouble(attributes.getValue("FC_MJ"));
-                    co2e = Double.parseDouble(attributes.getValue("CO2e"));
+			public void startElement(String uri, String localName, String qName, Attributes attributes) throws SAXException {
+				if (qName.equals("event") && attributes.getValue("type").equals("warmEmissionEvent")) {
+					vehicleId = attributes.getValue("vehicleId");
+					time = Double.parseDouble(attributes.getValue("time"));
+					hour = Math.floor(time / 3600);
+					linkId = attributes.getValue("linkId");
+					fcMj = Double.parseDouble(attributes.getValue("FC_MJ"));
+					co2e = Double.parseDouble(attributes.getValue("CO2e"));
 
-					System.out.println(hour + ":" + vehicleId);
-
-
+//					System.out.println(hour + ":" + vehicleId);
 
 
 					String vehicleType = vehicleMap.getOrDefault(vehicleId, "unknown");
 
 					String vehicleCategory = switch (vehicleType) {
-						case "car", "ride", "vwCaddy","golf1.4"                                  -> "car";
-						case "heavy40t", "medium18t", "freight", "truck"                         -> "HGV";
-						case "mercedes313", "light8t"                                            -> "LCV";
-						case "microcar"                                                          -> "microcar";  // add "golf1.4"???
+						case "car", "ride", "vwCaddy", "golf1.4" -> "car";
+						case "heavy40t", "medium18t", "freight", "truck" -> "HGV";
+						case "mercedes313", "light8t" -> "LCV";
+						case "microcar" -> "microcar";
 						case "Tram_veh_type", "Ferry_veh_type", "Bus_veh_type", "RE_RB_veh_type", "S-Bahn_veh_type", "U-Bahn_veh_type" -> "pt";
-						default                                                                  -> "unknown";
+						default -> "unknown";
 					};
 
-//					String vehicleCategory = switch (vehicleType) {
-//						case "car"                                -> "car";
-//						case "ride"                                -> "ride";
-//						case "golf1.4"                              -> "golf";
-//						case "vwCaddy"                                 -> "vwCaddy";
-//						case "heavy40t", "medium18t", "freight", "truck"                         -> "HGV";
-//						case "mercedes313", "light8t"                                            -> "LCV";
-//						case "microcar"                                                          -> "microcar";
-//						case "Tram_veh_type", "Ferry_veh_type", "Bus_veh_type", "RE_RB_veh_type", "S-Bahn_veh_type", "U-Bahn_veh_type" -> "pt";
-//						default                                                                  -> "unknown";
-//					};
 
-					System.out.println(vehicleCategory);
 
-                    // Initialize data structure if not already
-                    data.putIfAbsent(vehicleCategory, new HashMap<>());
-                    data.get(vehicleCategory).putIfAbsent(hour, new HashMap<>());
-                    data.get(vehicleCategory).get(hour).putIfAbsent(linkId, new EmissionData(0.0, 0.0));
+//					System.out.println(vehicleCategory);
 
-                    EmissionData emission = data.get(vehicleCategory).get(hour).get(linkId);
-                    emission.setFcMj(emission.getFcMj() + fcMj);
-                    emission.setCo2e(emission.getCo2e() + co2e);
-                }
-            }
-        };
+					data.putIfAbsent(vehicleCategory, new HashMap<>());
+					data.get(vehicleCategory).putIfAbsent(hour, new HashMap<>());
+					data.get(vehicleCategory).get(hour).putIfAbsent(linkId, new EmissionData(0.0, 0.0));
 
-        parser.parse(inputStream, handler);
-        inputStream.close();
-        return data;
-    }
+					EmissionData emission = data.get(vehicleCategory).get(hour).get(linkId);
+					emission.setFcMj(emission.getFcMj() + fcMj);
+					emission.setCo2e(emission.getCo2e() + co2e);
+				}
+			}
+		};
 
-    // Helper class for storing FC_MJ and CO2e values
-    public static class EmissionData {
-        private double fcMj;
-        private double co2e;
+		parser.parse(inputStream, handler);
+		inputStream.close();
+		return data;
+	}
 
-        public EmissionData(double fcMj, double co2e) {
-            this.fcMj = fcMj;
-            this.co2e = co2e;
-        }
-
-        public double getFcMj() {
-            return fcMj;
-        }
-
-        public void setFcMj(double fcMj) {
-            this.fcMj = fcMj;
-        }
-
-        public double getCo2e() {
-            return co2e;
-        }
-
-        public void setCo2e(double co2e) {
-            this.co2e = co2e;
-        }
-    }
-
-	// Convert the aggregated data to Excel with two sheets
+	/**
+	 * Saves the aggregated emissions data to an Excel file.
+	 *
+	 * @param data The emissions data organized by vehicle category, time, and link ID.
+	 * @param outputFile The path to the output Excel file.
+	 * @throws IOException If an error occurs while writing the file.
+	 */
 	public static void saveToExcel(Map<String, Map<Double, Map<String, EmissionData>>> data, String outputFile) throws IOException {
 		Workbook workbook = new XSSFWorkbook();
 
-		// Create first sheet: Summary by VehicleType and Time
+
 		Sheet sheet1 = workbook.createSheet("Summary_By_Time");
 		Row headerRow1 = sheet1.createRow(0);
 		headerRow1.createCell(0).setCellValue("vehicleCategory");
@@ -181,7 +171,7 @@ public class EmissionDataProcessor {
 			}
 		}
 
-		// Create second sheet: Summary by VehicleType and LinkId
+
 		Sheet sheet2 = workbook.createSheet("Summary_By_LinkId");
 		Row headerRow2 = sheet2.createRow(0);
 		headerRow2.createCell(0).setCellValue("vehicleCategory");
@@ -219,27 +209,41 @@ public class EmissionDataProcessor {
 			}
 		}
 
-		// Write to file
+
 		try (FileOutputStream fileOut = new FileOutputStream(outputFile)) {
 			workbook.write(fileOut);
 		}
 		workbook.close();
 	}
 
+	/**
+	 * Data structure for storing fuel consumption and CO2 emissions.
+	 */
+	public static final class EmissionData {
+		private double fcMj;
+		private double co2e;
 
-    public static void main(String[] args) throws Exception {
-        String vehicleFile = "output/micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter1/emission-analysis/output_vehicles.xml.gz";
-        String eventFile = "output/micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter1/emission-analysis/output_event_emission.xml.gz";
-        String outputFile = "output/micro100pct-sp60-pce0.5-DMC-2.5-MDR-0.24-iter1/emission-analysis/emissions_summary_2.xlsx";
+		public EmissionData(double fcMj, double co2e) {
+			this.fcMj = fcMj;
+			this.co2e = co2e;
+		}
 
-        System.out.println("Start parsing the vehicle file");
-        Map<String, String> vehicleMap = parseVehicleFile(vehicleFile);
-        System.out.println("Start parsing the event file");
-        Map<String, Map<Double, Map<String, EmissionData>>> data = parseEventFile(eventFile, vehicleMap);
+		public double getFcMj() {
+			return fcMj;
+		}
 
-        System.out.println("Start saving the data to Excel");
-        saveToExcel(data, outputFile);
+		public void setFcMj(double fcMj) {
+			this.fcMj = fcMj;
+		}
 
-        System.out.println("Excel file created: " + outputFile);
-    }
+		public double getCo2e() {
+			return co2e;
+		}
+
+		public void setCo2e(double co2e) {
+			this.co2e = co2e;
+		}
+	}
+
+
 }

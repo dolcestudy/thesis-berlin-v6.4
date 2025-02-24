@@ -49,20 +49,33 @@
 			<param name="teleportedModeSpeed" value="1.23"/>
 		</parameterset>
 	</module>
-	<module name="qsim">
-		<param name="mainMode" value="car,truck,freight,microcar"/>
-		<param name="flowCapacityFactor" value="0.1"/>
-		<param name="storageCapacityFactor" value="0.1"/>
-		<param name="numberOfThreads" value="6"/>
-		<param name="startTime" value="00:00:00"/>
-		<param name="endTime" value="36:00:00"/>
-		<param name="stuckTime" value="30.0"/>
-		<param name="trafficDynamics" value="kinematicWaves"/>
-		<param name="linkDynamics" value="PassingQ"/>
-		<param name="vehiclesSource" value="modeVehicleTypesFromVehiclesData"/>
-		<param name="insertingWaitingVehiclesBeforeDrivingVehicles" value="true"/>
-		<param name="usePersonIdForMissingVehicleId" value="false"/>
-	</module>
+		<module name="qsim">
+			<param name="mainMode" value="car,truck,freight,microcar"/>
+			<param name="flowCapacityFactor" value="0.1"/>
+			<param name="storageCapacityFactor" value="0.1"/>
+			<param name="numberOfThreads" value="6"/>
+			<param name="startTime" value="00:00:00"/>
+			<param name="endTime" value="36:00:00"/>
+			<param name="stuckTime" value="30.0"/>
+			<param name="trafficDynamics" value="kinematicWaves"/>
+			<param name="linkDynamics" value="PassingQ"/>
+			<param name="vehiclesSource" value="modeVehicleTypesFromVehiclesData"/>
+			<param name="insertingWaitingVehiclesBeforeDrivingVehicles" value="true"/>
+			<param name="usePersonIdForMissingVehicleId" value="false"/>
+		</module>
+<!--	<module name="hermes">-->
+<!--		<param name="mainMode" value="car,truck,freight,microcar"/>-->
+<!--		<param name="flowCapacityFactor" value="0.1"/>-->
+<!--		<param name="storageCapacityFactor" value="0.1"/>-->
+<!--		<param name="endTime" value="32:00:00"/>-->
+<!--		<param name="stuckTime" value="30"/>-->
+<!--		<param name="useDeterministicPt" value="true" />-->
+<!--	</module>-->
+
+
+<!--	<module name="parallelEventHandling" >-->
+<!--		<param name="oneThreadPerHandler" value="true" />-->
+<!--	</module>-->
 
 	<module name="subtourModeChoice">
 		<param name="modes" value="car,microcar,pt,bike,walk,ride"/>
