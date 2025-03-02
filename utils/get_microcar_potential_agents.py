@@ -3,9 +3,14 @@ import gzip
 import json
 import xml.etree.ElementTree as ET
 import csv
+import os
+import urllib.request
+import get_plans_with_microcar
 
 def get_all_persons_by_income(person_file):
-    df = pd.read_csv(person_file, sep=";")
+
+    with gzip.open(person_file, "rt", encoding="utf-8") as f:
+        df = pd.read_csv(f, sep=";")
 
     # Convert 'income' to numeric, setting errors='coerce' to convert non-numeric (empty) values to NaN
     df["income"] = pd.to_numeric(df["income"], errors="coerce")
@@ -19,8 +24,10 @@ def get_all_persons_by_income(person_file):
     return sorted_person_list
 
 def get_persons_with_cars_from_legs(legs_file):
-    # Read the CSV file
-    df = pd.read_csv(legs_file, sep=";")
+
+    with gzip.open(legs_file, "rt", encoding="utf-8") as f:
+        # Read the CSV file
+        df = pd.read_csv(f, sep=";")
 
     # Filter for rows where the mode is 'car'
     persons_with_car = df[df["mode"] == "car"]["person"].unique().tolist()
@@ -90,8 +97,10 @@ def get_persons_with_special_vehicle_type(plan_file, vehicle_type):
     return car_user_list
 
 def get_persons_household_1_2_empty(person_file):
-    # Read the CSV file
-    df = pd.read_csv(person_file, sep=";", dtype=str, low_memory=False)
+
+    with gzip.open(person_file, "rt", encoding="utf-8") as f:
+        # Read the CSV file
+        df = pd.read_csv(f, sep=";", dtype=str, low_memory=False)
 
     # Convert household_size to numeric
     df["household_size"] = pd.to_numeric(df["household_size"], errors="coerce")
@@ -104,9 +113,11 @@ def get_persons_household_1_2_empty(person_file):
 
     return person_list
 
-def get_persons_car_travel_less_200km(legs_file):
-    # Read the CSV file with proper data types
-    df = pd.read_csv(legs_file, sep=";", dtype=str, low_memory=False)
+def get_persons_car_travel_less_90km(legs_file):
+
+    with gzip.open(legs_file, "rt", encoding="utf-8") as f:
+        # Read the CSV file with proper data types
+        df = pd.read_csv(f, sep=";", dtype=str, low_memory=False)
 
     # Convert "distance" column to numeric type
     df["distance"] = pd.to_numeric(df["distance"], errors="coerce")
@@ -115,7 +126,7 @@ def get_persons_car_travel_less_200km(legs_file):
     df_grouped = df.groupby(["person", "mode"], as_index=False)["distance"].sum()
 
     # Filter for car mode and distance < 200,000 (if "car" exists in your dataset)
-    df_filtered = df_grouped[(df_grouped["mode"] == "car") & (df_grouped["distance"] < 200000)]
+    df_filtered = df_grouped[(df_grouped["mode"] == "car") & (df_grouped["distance"] < 90000)]
 
     # Get the list of persons matching the filter
     person_list = df_filtered["person"].tolist()
@@ -125,11 +136,12 @@ def get_persons_car_travel_less_200km(legs_file):
 
 if __name__ == '__main__':
     # Input files
-    legs_file = r"output\3pct-0iteration\micro000pct-iter0\output_legs.csv"
-    persons_file = r"output\3pct-0iteration\micro000pct-iter0\output_persons.csv"
-    plans_file = r"input\v6.4\3pct-plans\berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
-
-    # Generate lists
+    legs_file = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/output/3pct-micro000pct-sp50-pce0.5-iter0/output_legs.csv.gz"
+    persons_file = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/output/3pct-micro000pct-sp50-pce0.5-iter0/output_persons.csv.gz"
+    # plans_file_url = "https://svn.vsp.tu-berlin.de/repos/public-svn/matsim/scenarios/countries/de/berlin/berlin-v6.4/input/berlin-v6.4-3pct.plans.xml.gz"
+    plans_file = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
+    # print("read plans file")
+    # urllib.request.urlretrieve(plans_file_url, plans_file)
 
     print("Step 1: List all agents by income")
     persons_by_income = get_all_persons_by_income(persons_file)
@@ -145,9 +157,9 @@ if __name__ == '__main__':
     print(f"Agents using mercedes313: {len(mercedes_list)}")
     print(f"Agents using vwCaddy: {len(vwcaddy_list)}")
 
-    print("Step 4: List agents traveling less than 200km with cars")
-    cartravel_less_200km_list = set(get_persons_car_travel_less_200km(legs_file))
-    print(f"Agents with cars traveling less than 200km: {len(cartravel_less_200km_list)}")
+    print("Step 4: List agents traveling less than 90km with cars")
+    cartravel_less_200km_list = set(get_persons_car_travel_less_90km(legs_file))
+    print(f"Agents with cars traveling less than 90km: {len(cartravel_less_200km_list)}")
 
     print("Step 5: List agents whose household size is either 1, 2, or none")
     persons_household_1_2_nan_list = set(get_persons_household_1_2_empty(persons_file))
@@ -163,7 +175,7 @@ if __name__ == '__main__':
     print(f"Agents identified having the potential to switch to microcars: {len(agents_filtered)}")
 
     print("Step 7: Write csv file")
-    with open("potential_agents.csv", mode="w", newline="") as file:
+    with open("/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/3pct_potential_agents.csv", mode="w", newline="") as file:
         writer = csv.writer(file)
         # writer.writerow(["person"])  # Header row (optional)
         for item in agents_filtered:
@@ -171,3 +183,21 @@ if __name__ == '__main__':
 
     print("CSV file saved successfully!")
 
+    # make plan files
+    original_plan_file = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
+    potential_person_csv = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/3pct_potential_agents.csv"
+    df = pd.read_csv(potential_person_csv, header=None)
+    agents_list = df[0].tolist()
+    # print(potential_agents[1:10])
+    
+    output_file = [
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro00pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro25pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro50pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro75pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro100pct.xml.gz"]
+    modified_car_pct = [0,25,50,75,100]
+
+
+    for i in range(5):
+        get_plans_with_microcar.create_plan_file(original_plan_file, output_file[i], agents_list, modified_car_pct[i])

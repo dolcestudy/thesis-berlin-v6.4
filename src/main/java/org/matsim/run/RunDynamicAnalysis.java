@@ -47,94 +47,78 @@ import java.util.Objects;
 import java.util.Set;
 
 @CommandLine.Command(header = ":: Open Berlin Scenario ::", version = OpenBerlinScenario.VERSION, mixinStandardHelpOptions = true)
-public class RunSensitivityAnalysis extends MATSimApplication {
+public class RunDynamicAnalysis extends MATSimApplication {
 
 	// General configuration
-	public static final int ITER_NUM = 50;
 	public static final String VERSION = "6.4";
 	public static final String CRS = "EPSG:25832";
 	public static final String CONFIG_FILE = "input/v6.4/berlin-v6.4.config.xml";
 	public static final double SAMPLE_SIZE = 0.03;
-
-	// Sensitivity Analysis configuration
-	public static final List<Double> MICRO_SPEEDS = List.of(50.0);
-	public static final List<Double> MICRO_PCES = List.of(0.5);
-	public static final List<String> PLAN_FILES = List.of(
-		"berlin-v6.4-3pct-plans-micro25pct.xml.gz"
-//		"berlin-v6.4-3pct-plans-micro20pct.xml.gz",
-//		"berlin-v6.4-3pct-plans-micro40pct.xml.gz",
-//		"berlin-v6.4-3pct-plans-micro60pct.xml.gz",
-//		"berlin-v6.4-3pct-plans-micro80pct.xml.gz",
-//		"berlin-v6.4-3pct-plans-micro100pct.xml.gz"
-//      "berlin-v6.4-10pct-plans-micro00pct.xml.gz"
-	);
 
 	// emission input files
 	public static final String EMISSION_CONFIG_FILE = "input/v6.4/emission-average/config_emission.xml";
 	public static final String HBEFA_FILE_COLD_AVERAGE = "csv-data/cold_avr_2020_WTT_zero.csv";
 	public static final String HBEFA_FILE_WARM_AVERAGE = "csv-data/EFA_HOT_Vehcat_hot_avr_WTT_all_road_type.csv";
 
-	private static final Logger log = LogManager.getLogger(RunSensitivityAnalysis.class);
+	private static final Logger log = LogManager.getLogger(RunDynamicAnalysis.class);
 
-	public RunSensitivityAnalysis() {
+	public RunDynamicAnalysis() {
 		super(String.format("input/v%s/berlin-v%s.config.xml", VERSION, VERSION));
 	}
 
 	public static void main(String[] args) {
-		for (String planFile : PLAN_FILES) {
-			for (double microSpeed : MICRO_SPEEDS) {
-				for (double microPCE : MICRO_PCES) {
 
-					// Generate folderName dynamically
-					String folderName = String.format("micro%spct-sp%.0f-pce%.1f-iter%d", extractPercentage(planFile), microSpeed, microPCE, ITER_NUM);
+		int ITER_NUM = Integer.parseInt(args[0]);
+		double MICRO_SPEED = Double.parseDouble(args[1]);
+		double MICRO_PCE = Double.parseDouble(args[2]);
+		String PLAN_FILE = args[3];
 
-					log.info("Running simulation for folderName = {}", folderName);
+		
+		// Generate folderName dynamically
+		String folderName = String.format("micro%spct-sp%.0f-pce%.1f-iter%d", extractPercentage(PLAN_FILE), MICRO_SPEED, MICRO_PCE, ITER_NUM);
 
-					// matsim simulation
-					try {
-						RunSensitivityAnalysis instance = new RunSensitivityAnalysis();
-						Config config = instance.prepareConfig(ConfigUtils.loadConfig(CONFIG_FILE), folderName, planFile);
-						Scenario scenario = ScenarioUtils.loadScenario(config);
-						instance.prepareScenario(scenario, microSpeed, microPCE);
-						Controler controler = new Controler(scenario);
-						instance.prepareControler(controler);
-						controler.run();
-					} catch (NumberFormatException e) {
-						log.error("An error occurred", e);
-					}
+		log.info("Running simulation for folderName = {}", folderName);
 
-					log.info("Running emission analysis for folderName = {}", folderName);
+		// matsim simulation
+		try {
+			RunDynamicAnalysis instance = new RunDynamicAnalysis();
+			Config config = instance.prepareConfig(ConfigUtils.loadConfig(CONFIG_FILE), folderName, PLAN_FILE, ITER_NUM);
+			Scenario scenario = ScenarioUtils.loadScenario(config);
+			instance.prepareScenario(scenario, MICRO_SPEED, MICRO_PCE);
+			Controler controler = new Controler(scenario);
+			instance.prepareControler(controler);
+			controler.run();
+		} catch (NumberFormatException e) {
+			log.error("An error occurred", e);
+		}
 
-					// emission analysis
-					try {
-						Config emissionConfig = ConfigUtils.loadConfig(EMISSION_CONFIG_FILE);
-						File rootPath = RunBerlinEmission.createOutputFolder("./output/" + folderName);
-						RunBerlinEmission.prepareConfig(emissionConfig, rootPath, HBEFA_FILE_WARM_AVERAGE, HBEFA_FILE_COLD_AVERAGE);
+		log.info("Running emission analysis for folderName = {}", folderName);
 
-						Scenario emissionScenario = ScenarioUtils.loadScenario(emissionConfig);
-						RunBerlinEmission.prepareScenario(emissionScenario);
+		// emission analysis
+		try {
+			Config emissionConfig = ConfigUtils.loadConfig(EMISSION_CONFIG_FILE);
+			File rootPath = RunBerlinEmission.createOutputFolder("./output/" + folderName);
+			RunBerlinEmission.prepareConfig(emissionConfig, rootPath, HBEFA_FILE_WARM_AVERAGE, HBEFA_FILE_COLD_AVERAGE);
 
-
-						EventsManager eventsManager = EventsUtils.createEventsManager();
-						RunBerlinEmission.initializeEmissionModule(emissionConfig, emissionScenario, eventsManager);
-
-						RunBerlinEmission.processEvents(emissionConfig, eventsManager, "./output/" + folderName + "/output_events.xml.gz");
-						RunBerlinEmission.writeOutputs(emissionConfig, emissionScenario, rootPath);
-
-						log.info("Emission analysis completed for folderName = {}", folderName);
-					} catch (NumberFormatException e) {
-						log.error("An error occurred", e);
-					}
+			Scenario emissionScenario = ScenarioUtils.loadScenario(emissionConfig);
+			RunBerlinEmission.prepareScenario(emissionScenario);
 
 
-				}
-			}
+			EventsManager eventsManager = EventsUtils.createEventsManager();
+			RunBerlinEmission.initializeEmissionModule(emissionConfig, emissionScenario, eventsManager);
+
+			RunBerlinEmission.processEvents(emissionConfig, eventsManager, "./output/" + folderName + "/output_events.xml.gz");
+			RunBerlinEmission.writeOutputs(emissionConfig, emissionScenario, rootPath);
+
+			log.info("Emission analysis completed for folderName = {}", folderName);
+		} catch (NumberFormatException e) {
+			log.error("An error occurred", e);
 		}
 	}
 
 
-	private static String extractPercentage(String planFile) {
-		String percentage = planFile.replaceAll(".*-micro(\\d+)pct.*", "$1");
+	private static String extractPercentage(String PLAN_FILE) {
+		String percentage = PLAN_FILE.replaceAll(".*-micro(\\d+)pct.*", "$1");
 		return String.format("%03d", Integer.parseInt(percentage));
 	}
 
@@ -144,19 +128,19 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 	 *
 	 * @param config The MATSim configuration to modify.
 	 * @param folderName The name of the output folder.
-	 * @param planFile The path to the plan file.
+	 * @param PLAN_FILE The path to the plan file.
 	 * @return The modified MATSim configuration.
 	 */
-	protected final Config prepareConfig(Config config, String folderName, String planFile) {
+	protected final Config prepareConfig(Config config, String folderName, String PLAN_FILE, int ITER_NUM) {
 
 		SimWrapperConfigGroup sw = ConfigUtils.addOrGetModule(config, SimWrapperConfigGroup.class);
 
-		config.controller().setOutputDirectory("./output/" + folderName);
+		config.controller().setOutputDirectory("./output/3pct/" + folderName);
 		log.info(config.controller().getOutputDirectory());
 		config.controller().setOverwriteFileSetting(OutputDirectoryHierarchy.OverwriteFileSetting.deleteDirectoryIfExists);
 
 		config.controller().setLastIteration(ITER_NUM);
-		config.plans().setInputFile(planFile);
+		config.plans().setInputFile(PLAN_FILE);
 
 		{
 			log.info("Sample size: " + SAMPLE_SIZE);
@@ -216,12 +200,12 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 		// scoring for microcar
 		{
 			ScoringConfigGroup.ModeParams params = new ScoringConfigGroup.ModeParams("microcar");
-			params.setConstant(-0.94);
-			params.setDailyMonetaryConstant(-3.02);
+			params.setConstant(-0.60);
+			params.setDailyMonetaryConstant(-3.0);
 			params.setDailyUtilityConstant(0.0);
 			params.setMarginalUtilityOfDistance(0.0);
 			params.setMarginalUtilityOfTraveling(0.0);
-			params.setMonetaryDistanceRate(-4.50E-5);
+			params.setMonetaryDistanceRate(-2.39E-5);
 			params.setMode("microcar");
 
 			config.scoring().addModeParams(params);
@@ -234,10 +218,10 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 	 * Configures the MATSim scenario by adding microcar settings and modifying vehicle speeds.
 	 *
 	 * @param scenario The MATSim scenario to modify.
-	 * @param microSpeed The speed of microcars (in km/h).
-	 * @param microPCE The Passenger Car Equivalent (PCE) of microcars.
+	 * @param MICRO_SPEED The speed of microcars (in km/h).
+	 * @param MICRO_PCE The Passenger Car Equivalent (PCE) of microcars.
 	 */
-	protected final void prepareScenario(Scenario scenario, double microSpeed, double microPCE) {
+	protected final void prepareScenario(Scenario scenario, double MICRO_SPEED, double MICRO_PCE) {
 
 		// Add microcar mode to all the links where car mode is allowed
 		for (Link link : scenario.getNetwork().getLinks().values()) {
@@ -252,8 +236,8 @@ public class RunSensitivityAnalysis extends MATSimApplication {
 		for (VehicleType vehicleType : scenario.getVehicles().getVehicleTypes().values()) {
 			Id<VehicleType> vehicleTypeId = vehicleType.getId();
 			if (Objects.equals(vehicleTypeId.toString(), "microcar")) {
-				vehicleType.setMaximumVelocity(microSpeed / 3.6);
-				vehicleType.setPcuEquivalents(microPCE);
+				vehicleType.setMaximumVelocity(MICRO_SPEED / 3.6);
+				vehicleType.setPcuEquivalents(MICRO_PCE);
 			}
 		}
 

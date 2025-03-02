@@ -4,12 +4,12 @@ import math
 import pandas as pd
 
  
-def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
+def create_plan_file(original_plan_file, output_file, potential_agents, microcar_pct):
     
     print(f"Start creating a new plan file: {output_file}")
 
-    num_agents = math.floor(len(agent_list) * microcar_pct/100)
-    microcar_agents = set(agent_list[:num_agents])
+    num_agents = math.floor(len(potential_agents) * microcar_pct/100)
+    microcar_agents = set(potential_agents[:num_agents])
 
 
     # Open the output file and write the XML declaration & DOCTYPE first
@@ -41,21 +41,24 @@ def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
 
 
                 if event == "end" and elem.tag == "person":
-                    # Find the correct <attribute> element
-                    for attribute in elem.findall(".//attribute[@name='vehicles']"):
-                        vehicles_text = attribute.text
-                        if '"car":"' in vehicles_text:
-                            # Extract car ID
-                            car_prefix = vehicles_text.split('"car":"')[1].split('_car')[0]
-                            car_id = f"{car_prefix}_car"
-
-                            # Modify vehicles text by adding microcar
-                            microcar_entry = f'"microcar":"{car_prefix}_microcar"'
-                            attribute.text = vehicles_text.replace(f'"car":"{car_id}"', f'"car":"{car_id}",{microcar_entry}', 1)
 
                     # Modify travel mode in plan elements if the car is in the list
+                    if person_id in potential_agents:
+
+                        # Find the correct <attribute> element
+                        for attribute in elem.findall(".//attribute[@name='vehicles']"):
+                            vehicles_text = attribute.text
+                            if '"car":"' in vehicles_text:
+                                # Extract car ID
+                                car_prefix = vehicles_text.split('"car":"')[1].split('_car')[0]
+                                car_id = f"{car_prefix}_car"
+
+                                # Modify vehicles text by adding microcar
+                                microcar_entry = f'"microcar":"{car_prefix}_microcar"'
+                                attribute.text = vehicles_text.replace(f'"car":"{car_id}"', f'"car":"{car_id}",{microcar_entry}', 1)
+
                     if person_id in microcar_agents:
-                        # print(f"person hit! {person_id}")
+
                         for plan in elem.findall(".//plan"):
                             for sub_elem in plan.iter():
                                 if sub_elem.text and "car" in sub_elem.text:
@@ -65,8 +68,6 @@ def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
                                 for attr_key, attr_value in sub_elem.attrib.items():
                                     if "car" in attr_value:
                                         sub_elem.attrib[attr_key] = attr_value.replace("car", "microcar")
-
-
 
                     person_id = None  
 
@@ -84,19 +85,19 @@ def create_plan_file(original_plan_file, output_file, agent_list, microcar_pct):
 # Run the program
 if __name__ == "__main__":
 
-    original_plan_file = r"input\v6.4\3pct-plans\berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
-    df = pd.read_csv("potential_persons.csv", header=None)
+    original_plan_file = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro00pct-original.xml.gz"
+    potential_person_csv = "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/3pct_potential_agents.csv"
+    df = pd.read_csv(potential_person_csv, header=None)
     agents_list = df[0].tolist()
     # print(potential_agents[1:10])
     
     output_file = [
-        r"input\v6.4\berlin-v6.4-3pct-plans-micro00pct.xml.gz",
-        r"input\v6.4\berlin-v6.4-3pct-plans-micro20pct.xml.gz",
-        r"input\v6.4\berlin-v6.4-3pct-plans-micro40pct.xml.gz",
-        r"input\v6.4\berlin-v6.4-3pct-plans-micro60pct.xml.gz",
-        r"input\v6.4\berlin-v6.4-3pct-plans-micro80pct.xml.gz",
-        r"input\v6.4\berlin-v6.4-3pct-plans-micro100pct.xml.gz"]
-    modified_car_pct = [0,20,40,60,80,100]
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro00pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro25pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro50pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro75pct.xml.gz",
+        "/dss/dsshome1/05/ge83ham2/thesis-berlin-v6.4/input/v6.4/berlin-v6.4-3pct-plans-micro100pct.xml.gz"]
+    modified_car_pct = [0,25,50,75,100]
 
 
     for i in range(6):
